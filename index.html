@@ -22,10 +22,30 @@ td,th{border:1px solid #ccc;padding:4px;text-align:center}
 button{background:#00b894;color:#fff;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;margin-right:5px}
 #criterio90{font-size:18px;font-weight:bold;margin-top:10px}
 canvas{background:#fff;border-radius:8px}
+.printOnly{
+ display:none;
+ font-weight:bold;
+ margin-bottom:10px;
+}
+
 @media print{
- button,input{display:none}
- body{background:#fff;color:#000}
- .card{background:#fff;color:#000}
+ button,input{
+   display:none;
+ }
+
+ .printOnly{
+   display:block;
+ }
+
+ body{
+   background:#fff;
+   color:#000;
+ }
+
+ .card{
+   background:#fff;
+   color:#000;
+ }
 }
 </style>
 </head>
@@ -38,12 +58,15 @@ canvas{background:#fff;border-radius:8px}
 <div class="card">
 <label>Nome do Poço</label>
 <input id="nomePoco" type="text">
-<br><br>
+<div id="printNome" class="printOnly"></div>
+
 <label>NE (m)</label>
 <input id="ne" type="number" step="0.01">
-<br><br>
+<div id="printNE" class="printOnly"></div>
+
 <label>ND Final do Bombeamento (m)</label>
 <input id="ndFinal" type="number" step="0.01">
+<div id="printND" class="printOnly"></div>
 <br><br>
 <button onclick="window.print()">📄 Gerar PDF</button>
 <button onclick="limpar()">🗑 Limpar</button>
@@ -103,6 +126,14 @@ function atualizar(){
  save();
  const ne=parseFloat(document.getElementById('ne').value);
  const ndf=parseFloat(document.getElementById('ndFinal').value);
+ document.getElementById("printNome").innerHTML =
+"Nome do Poço: " + document.getElementById("nomePoco").value;
+
+document.getElementById("printNE").innerHTML =
+"NE: " + document.getElementById("ne").value + " m";
+
+document.getElementById("printND").innerHTML =
+"ND Final do Bombeamento: " + document.getElementById("ndFinal").value + " m";
  if(isNaN(ne)||isNaN(ndf)) return;
 
  const sp=ndf-ne;
