@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Recuperação de Poço - Saneago</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{font-family:Arial,sans-serif;background:#0b2447;color:white;margin:0;padding:15px}
+.container{max-width:1200px;margin:auto}
+.header{text-align:center}
+.card{background:#19376d;padding:15px;border-radius:10px;margin-bottom:15px}
+input{width:100%;padding:8px;box-sizing:border-box}
+table{width:100%;border-collapse:collapse;background:white;color:black}
+th{background:#1e3a8a;color:white}
+td,th{border:1px solid #ccc;padding:4px;text-align:center}
+.nd{width:90px}
+button{background:#00b894;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer}
+#criterio90{font-size:20px;font-weight:bold;margin-top:10px}
+canvas{background:white;border-radius:8px}
+@media(max-width:768px){table{font-size:12px}input{font-size:16px}}
+</style>
+</head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b2447">
+<body>
+<div class="container">
+<div class="header">
+<h1>SANEAGO</h1>
+<h3>Supervisão de Hidrogeologia - P-SHI</h3>
+<h2>Calculadora de Recuperação de Poço</h2>
+</div>
+
+<div class="card">
+<label>NE - Nível Estático (m)</label>
+<input type="number" step="0.01" id="ne">
+<br><br>
+<label>ND Final do Bombeamento (m)</label>
+<input type="number" step="0.01" id="ndFinal">
+<br><br>
+<button onclick="limpar()">Limpar</button>
+</div>
+
+<div class="card">
+<div id="rebaixamento">Rebaixamento Total: -</div>
+<div id="criterio90"></div>
+<canvas id="grafico" height="120"></canvas>
+</div>
+
+<div class="card">
+<table>
+<thead>
+<tr><th>Tempo (min)</th><th>ND (m)</th><th>SP' (m)</th><th>% Recuperação</th></tr>
+</thead>
+<tbody id="tabela"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+const tempos=[1,4,7,10,15,20,25,30,35,40,45,50,55,60,70,80,90,100,110,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,600,660,720,780,840,900,960,1020,1080,1140,1200,1260,1320,1380,1440];
+const tabela=document.getElementById("tabela");
+
+tempos.forEach((t,i)=>{
+tabela.innerHTML+=`<tr>
+<td>${t}</td>
+<td><input class="nd" type="number" step="0.01" id="nd_${i}"></td>
+<td id="sp_${i}"></td>
+<td id="perc_${i}"></td>
+</tr>`;
+});
+
+const grafico=new Chart(document.getElementById('grafico'),{
+type:'line',
+data:{labels:[],datasets:[{label:'Recuperação (%)',data:[]}]},
+options:{responsive:true,scales:{y:{min:0,max:100}}}
+});
+
+function atualizarCalculos(){
+let ne=parseFloat(document.getElementById("ne").value);
+let ndFinal=parseFloat(document.getElementById("ndFinal").value);
+if(isNaN(ne)||isNaN(ndFinal)) return;
+
+let sp=ndFinal-ne;
+document.getElementById("rebaixamento").innerHTML="Rebaixamento Total (SP): "+sp.toFixed(2)+" m";
+
+let atingiu90=false;
+let labels=[];
+let dados=[];
+
+for(let i=0;i<tempos.length;i++){
+ let nd=parseFloat(document.getElementById("nd_"+i).value);
+ if(!isNaN(nd)){
+   let spRec=ndFinal-nd;
+   let perc=(spRec/sp)*100;
+   document.getElementById("sp_"+i).innerHTML=spRec.toFixed(2);
+   document.getElementById("perc_"+i).innerHTML=perc.toFixed(2)+"%";
+   labels.push(tempos[i]);
+   dados.push(perc.toFixed(2));
+   if(perc>=90) atingiu90=true;
+ } else {
+   document.getElementById("sp_"+i).innerHTML="";
+   document.getElementById("perc_"+i).innerHTML="";
+ }
+}
+
+grafico.data.labels=labels;
+grafico.data.datasets[0].data=dados;
+grafico.update();
+
+if(atingiu90){
+ document.getElementById("criterio90").innerHTML="😊 ESTE POÇO ATENDE AO CRITÉRIO DE 90% DE RECUPERAÇÃO DA SEMAD";
+ document.getElementById("criterio90").style.color="#00ff88";
+}else{
+ document.getElementById("criterio90").innerHTML="☹️ ESTE POÇO NÃO ATENDE AO CRITÉRIO DE 90% DE RECUPERAÇÃO DA SEMAD";
+ document.getElementById("criterio90").style.color="#ff6b6b";
+}
+}
+
+document.getElementById("ne").addEventListener("input",atualizarCalculos);
+document.getElementById("ndFinal").addEventListener("input",atualizarCalculos);
+
+tempos.forEach((t,i)=>{
+ document.getElementById("nd_"+i).addEventListener("input",atualizarCalculos);
+});
+
+function limpar(){
+document.getElementById("ne").value="";
+document.getElementById("ndFinal").value="";
+document.getElementById("rebaixamento").innerHTML="Rebaixamento Total: -";
+document.getElementById("criterio90").innerHTML="";
+grafico.data.labels=[];
+grafico.data.datasets[0].data=[];
+grafico.update();
+
+for(let i=0;i<tempos.length;i++){
+ document.getElementById("nd_"+i).value="";
+ document.getElementById("sp_"+i).innerHTML="";
+ document.getElementById("perc_"+i).innerHTML="";
+}
+}
+</script>
+</body>
+</html>
