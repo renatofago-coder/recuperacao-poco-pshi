@@ -1,0 +1,16 @@
+{
+  "name": "Recuperação de Poço - P-SHI",
+  "short_name": "Poço P-SHI",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b2447",
+  "theme_color": "#0b2447",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
