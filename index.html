@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b2447">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Recuperação de Poço - P-SHI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -146,6 +150,20 @@ function limpar(){
 
 document.querySelectorAll('input').forEach(e=>e.addEventListener('input',atualizar));
 load();
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(reg => {
+        console.log("PWA instalado:", reg.scope);
+      })
+      .catch(err => {
+        console.log("Erro ao registrar SW:", err);
+      });
+  });
+}
 </script>
+
 </body>
 </html>
